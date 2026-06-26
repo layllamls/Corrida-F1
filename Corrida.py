@@ -3,8 +3,7 @@ import random
 
 
 class Veiculo(abc.ABC):
-    def __init__(self, marca, modelo,piloto, velocidade_max, combustivel_max, combustivel_atual):
-        self.__marca = marca
+    def __init__(self, modelo,piloto, velocidade_max, combustivel_max, combustivel_atual):
         self.modelo = modelo
         self.piloto = piloto
         self.__velocidade_max = velocidade_max
@@ -66,13 +65,11 @@ class Pitstop:
         quantidade = carro.get_combustivel_max() - carro.get_combustivel()
         self.bomba.abastecer(quantidade,carro)
         
-        print(
-            f"{carro.modelo} entrou no box ({tempo}s) | "
-            f"Combustível: {combustivel_antes}L --> {carro.get_combustivel()}L")
+        print(f"{carro.modelo} entrou no box ({tempo}s) | Combustível: {combustivel_antes}L --> {carro.get_combustivel()}L")
 
 class Carro(Veiculo):
-    def __init__(self, marca, modelo, piloto, velocidade_max, combustivel_max, combustivel_atual):
-        super().__init__(marca, modelo,piloto, velocidade_max, combustivel_max, combustivel_atual)
+    def __init__(self, modelo, piloto, velocidade_max, combustivel_max, combustivel_atual):
+        super().__init__(modelo,piloto, velocidade_max, combustivel_max, combustivel_atual)
         self.distancia = 0
         self.pneus = [Pneu() for i in range(4)]
         self.tempo_box = 0
@@ -82,13 +79,10 @@ class Carro(Veiculo):
             return f"{self.modelo} ficou sem combustível!"
 
         velocidade = random.randint(self.get_velocidade_max() - 40, self.get_velocidade_max())
-        
         self.distancia += velocidade
         
         consumo = velocidade * 0.02
-       
         novo_combustivel = self.get_combustivel() - consumo
-        
         self.set_combustivel(max(0, novo_combustivel))
         
         if velocidade >= 250:
@@ -111,8 +105,7 @@ class Carro(Veiculo):
         return desgaste_pneus or pouco_combustivel
 
 class CarroEsportivo:
-    def __init__(self, marca, modelo, piloto, velocidade_max, combustivel_max, combustivel_atual):
-        self.__marca = marca
+    def __init__(self, modelo, piloto, velocidade_max, combustivel_max, combustivel_atual):
         self.modelo = modelo
         self.piloto = piloto
         self.__velocidade_max = velocidade_max
