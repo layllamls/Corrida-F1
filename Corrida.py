@@ -1,6 +1,14 @@
 import abc
 import random
 
+class LogMixin:
+    def imprimir(self, msg):
+        print(msg)
+
+class Box(abc.ABC):
+    @abc.abstractmethod
+    def realizar(self, carro):
+        pass
 
 class Veiculo(abc.ABC):
     def __init__(self, modelo,piloto, velocidade_max, combustivel_max, combustivel_atual):
@@ -49,7 +57,7 @@ class Pneu:
     def trocar(self):
         self.desgaste = 0
 
-class Pitstop:
+class Pitstop(LogMixin, Box):
     def __init__(self, bomba):
         self.bomba = bomba
     
@@ -65,7 +73,7 @@ class Pitstop:
         quantidade = carro.get_combustivel_max() - carro.get_combustivel()
         self.bomba.abastecer(quantidade,carro)
         
-        print(f"{carro.modelo} entrou no box ({tempo}s) | Combustível: {combustivel_antes}L --> {carro.get_combustivel()}L")
+        self.imprimir(f"{carro.modelo} entrou no box ({tempo}s) | Combustível: {combustivel_antes}L --> {carro.get_combustivel()}L")
 
 class Carro(Veiculo):
     def __init__(self, modelo, piloto, velocidade_max, combustivel_max, combustivel_atual):
@@ -104,50 +112,6 @@ class Carro(Veiculo):
         pouco_combustivel = self.get_combustivel() <= 15
         return desgaste_pneus or pouco_combustivel
 
-class CarroEsportivo:
-    def __init__(self, modelo, piloto, velocidade_max, combustivel_max, combustivel_atual):
-        self.modelo = modelo
-        self.piloto = piloto
-        self.__velocidade_max = velocidade_max
-        self.__combustivel_max = combustivel_max
-        self.__combustivel_atual = combustivel_atual
-        self.distancia = 0
-        self.pneus = [Pneu() for c in range(4)]
-        self.tempo_box = 0
-    
-    def get_velocidade_max(self):
-        return self.__velocidade_max
-    
-    def get_combustivel(self):
-        return self.__combustivel_atual
-    
-    def set_combustivel(self, novo_combustivel):
-        self.__combustivel_atual = novo_combustivel
-    
-    def get_combustivel_max(self):
-        return self.__combustivel_max
-    
-    def acelerar(self):
-        if self.get_combustivel() <= 0:
-            return f"{self.modelo} ficou sem combustível!"
-        velocidade = random.randint(self.get_velocidade_max() - 20, self.get_velocidade_max())
-        self.distancia += velocidade
-        consumo = velocidade * 0.04
-        novo_combustivel = self.get_combustivel() - consumo
-        self.set_combustivel(max(0, novo_combustivel))
-        desgaste = 4
-        if velocidade >= 280:
-            desgaste = 6
-
-        for pneu in self.pneus:
-            pneu.desgastar(desgaste)
-        return f"{self.modelo} acelerando a {velocidade} km/h (Distancia: {self.distancia})"
-
-    def precisa_pitstop(self):
-        desgaste_pneus = any(pneu.desgaste >= 70 for pneu in self.pneus)
-        pouco_combustivel = self.get_combustivel() <= 15
-        return desgaste_pneus or pouco_combustivel
-    
 class Equipe:
     def __init__(self, nome):
         self.nome = nome
@@ -164,38 +128,40 @@ class Pista:
     def __init__(self, nome, comprimento):
         self.nome = nome
         self.__comprimento = comprimento
+
     def get_comprimento(self):
         return self.__comprimento
 
-class Corrida:
-    def __init__(self, participantes, pista):
+class Corrida(LogMixin):
+    def __init__(self, participantes, pista, pitstop):
         self.participantes = participantes
         self.distancia_total = pista.get_comprimento()
+        self.pitstop = pitstop
 
     def iniciar(self):
         self.resultado = []
 
         for c in self.participantes:
             c.distancia = 0
-        print("Corrida iniciada!!\n")
+        self.imprimir("Corrida iniciada!!\n")
 
         while len(self.resultado) < len(self.participantes):
             for carro in self.participantes:
                 if carro not in self.resultado:
-                    print(carro.acelerar())
+                    self.imprimir(carro.acelerar())
                     if carro.precisa_pitstop():
-                        pitstop.realizar(carro)
+                        self.pitstop.realizar(carro)
                     
                     if carro.distancia >= self.distancia_total:
-                        print(f"{carro.modelo} chegou!")
+                        self.imprimir(f"{carro.modelo} chegou!")
                         self.resultado.append(carro)
 
         self.resultado[0].piloto.set_vitorias()
-        print("\nCorrida finalizada!")
-        print("---Classificação---")
+        self.imprimir("\nCorrida finalizada!")
+        self.imprimir("---Classificação---")
         lugar_podio = 1
         for c in self.resultado:
-            print(f"{lugar_podio}° - {c.modelo} | Piloto: {c.piloto.nome}")
+            self.imprimir(f"{lugar_podio}° - {c.modelo} | Piloto: {c.piloto.nome}")
             lugar_podio +=1
 
 class Bomba_Combustivel:
@@ -209,6 +175,3 @@ class Bomba_Combustivel:
         
         carro.set_combustivel(carro.get_combustivel() + quantidade)
         self.combustivel_atual -= quantidade
-
-bomba = Bomba_Combustivel(3000)
-pitstop = Pitstop(bomba)
