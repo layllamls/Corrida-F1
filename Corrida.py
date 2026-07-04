@@ -1,5 +1,7 @@
+#integrantes: Laylla Melissa do Nascimento Fontes, Otávio Fernandes Barros, Maysa Ruth Silva Maraço, Francisco Marcio Queiroz Duarte
 import abc
 import random
+import csv
 
 class LogMixin:
     def imprimir(self, msg):
@@ -112,17 +114,18 @@ class Carro(Veiculo):
         pouco_combustivel = self.get_combustivel() <= 15
         return desgaste_pneus or pouco_combustivel
 
-class Equipe:
+class Equipe(LogMixin):
     def __init__(self, nome):
         self.nome = nome
         self.__participantes = []
-        
-    def adicionar_participantes(self, participante):
-        self.__participantes.append(participante)
 
     def listar_participantes(self):
         for p in self.__participantes:
-            print(f"Carro: {p.modelo} | Piloto: {p.piloto.nome}")
+            self.imprimir(f"Carro: {p.modelo} | Piloto: {p.piloto.nome}")
+
+    def adicionar_participantes(self, participante):
+        self.__participantes.append(participante)
+        participante.equipe = self.nome
 
 class Pista:
     def __init__(self, nome, comprimento):
@@ -137,6 +140,18 @@ class Corrida(LogMixin):
         self.participantes = participantes
         self.distancia_total = pista.get_comprimento()
         self.pitstop = pitstop
+    
+    def salvar_classificacao(self):
+        self.imprimir("Salvando classificação...")
+        with open("classificacao.csv", "w", newline="", encoding="utf-8") as arquivo:
+            escritor = csv.writer(arquivo)
+            escritor.writerow(["Posição", "Piloto", "Equipe"])
+            for posicao, carro in enumerate(self.resultado, start=1):
+                escritor.writerow([
+                posicao,
+                carro.piloto.nome,
+                carro.equipe ])
+        self.imprimir("Arquivo criado com sucesso!")
 
     def iniciar(self):
         self.resultado = []
@@ -162,16 +177,37 @@ class Corrida(LogMixin):
         lugar_podio = 1
         for c in self.resultado:
             self.imprimir(f"{lugar_podio}° - {c.modelo} | Piloto: {c.piloto.nome}")
-            lugar_podio +=1
+            lugar_podio += 1
+        self.salvar_classificacao()
 
-class Bomba_Combustivel:
+class Bomba_Combustivel(LogMixin):
     def __init__(self, combustivel_atual):
         self.combustivel_atual = combustivel_atual
 
     def abastecer(self, quantidade, carro):
         if quantidade > self.combustivel_atual:
-            print("A bomba não possui combustível suficiente!")
+            self.imprimir("A bomba não possui combustível suficiente!")
             return
         
         carro.set_combustivel(carro.get_combustivel() + quantidade)
         self.combustivel_atual -= quantidade
+    
+    #teste csv
+
+byd = Equipe("BYD")
+ferrari = Equipe("Ferrari")
+brainrot = Equipe("Brainrot")
+piloto1 = Piloto("Demetrios")
+piloto2 = Piloto("Info2M")
+piloto3 = Piloto("Six Seven")
+carro1 = Carro("SF-24", piloto1, 320, 100, 100)
+carro2 = Carro("W15", piloto2, 310, 100, 100)
+carro3 = Carro("Aura", piloto3, 310, 100, 100)
+byd.adicionar_participantes(carro1)
+ferrari.adicionar_participantes(carro2)
+brainrot.adicionar_participantes(carro3)
+pista = Pista("Interlagos", 3000)
+bomba = Bomba_Combustivel(1000)
+pitstop = Pitstop(bomba)
+corrida = Corrida([carro1, carro2, carro3], pista, pitstop)
+corrida.iniciar()
