@@ -2,6 +2,23 @@
 import abc
 import random
 import csv
+import os
+import time
+
+def barra(valor, total, tamanho=20):
+    porcentagem = valor / total
+    if porcentagem > 1:
+        porcentagem = 1
+    preenchido = int(tamanho * porcentagem)
+    return "█" * preenchido + "░" * (tamanho - preenchido)
+
+def limpar_tela():
+    os.system("cls")
+
+def cabecalho():
+    print("=" * 45)
+    print("SIMULADOR DE CORRIDA")
+    print("=" * 45)
 
 class LogMixin:
     def imprimir(self, msg):
@@ -87,23 +104,22 @@ class Carro(Veiculo):
     def acelerar(self):
         if self.get_combustivel() <= 0:
             return f"{self.modelo} ficou sem combustível!"
-
+        
         velocidade = random.randint(self.get_velocidade_max() - 40, self.get_velocidade_max())
         self.distancia += velocidade
-        
         consumo = velocidade * 0.02
         novo_combustivel = self.get_combustivel() - consumo
         self.set_combustivel(max(0, novo_combustivel))
-        
+
         if velocidade >= 250:
             desgaste = 5
-        
+
         elif velocidade >= 200:
             desgaste = 3
-        
+
         else:
             desgaste = 1
-        
+
         for pneu in self.pneus:
             pneu.desgastar(desgaste)
 
@@ -113,6 +129,11 @@ class Carro(Veiculo):
         desgaste_pneus = any(pneu.desgaste >= 70 for pneu in self.pneus)
         pouco_combustivel = self.get_combustivel() <= 15
         return desgaste_pneus or pouco_combustivel
+    def desgaste_medio(self):
+        total = 0
+        for pneu in self.pneus:
+            total += pneu.desgaste
+        return total / 4
 
 class Equipe(LogMixin):
     def __init__(self, nome):
@@ -140,6 +161,7 @@ class Corrida(LogMixin):
         self.participantes = participantes
         self.distancia_total = pista.get_comprimento()
         self.pitstop = pitstop
+        self.volta = 0
     
     def salvar_classificacao(self):
         self.imprimir("Salvando classificação...")
@@ -155,24 +177,41 @@ class Corrida(LogMixin):
 
     def iniciar(self):
         self.resultado = []
-
+        self.volta=0
+        time.sleep(1)
         for c in self.participantes:
             c.distancia = 0
-        self.imprimir("Corrida iniciada!!\n")
+            c.set_combustivel(c.get_combustivel_max())
+            c.tempo_box = 0
+            for pneu in c.pneus:
+                pneu.trocar()
 
+        self.imprimir("Corrida iniciada!!\n")
         while len(self.resultado) < len(self.participantes):
+            limpar_tela()
+            cabecalho()
+            self.volta += 1
+            self.imprimir(f"\n Volta: {self.volta}\n")
+
+            random.shuffle(self.participantes)
             for carro in self.participantes:
                 if carro not in self.resultado:
                     self.imprimir(carro.acelerar())
+
                     if carro.precisa_pitstop():
                         self.pitstop.realizar(carro)
-                    
+
                     if carro.distancia >= self.distancia_total:
                         self.imprimir(f"{carro.modelo} chegou!")
                         self.resultado.append(carro)
 
+            self.mostrar_classificacao()
+            time.sleep(6)
+            
         self.resultado[0].piloto.set_vitorias()
         self.imprimir("\nCorrida finalizada!")
+        self.imprimir("\n VENCEDOR")
+        self.imprimir(f"{self.resultado[0].modelo} venceu com {self.resultado[0].piloto.nome}")
         self.imprimir("---Classificação---")
         lugar_podio = 1
         for c in self.resultado:
@@ -180,6 +219,17 @@ class Corrida(LogMixin):
             lugar_podio += 1
         self.salvar_classificacao()
 
+    def mostrar_classificacao(self):
+        ordem = sorted(
+                self.participantes,key=lambda carro: carro.distancia,reverse=True)
+        self.imprimir("\n--- CLASSIFICAÇÃO ---")
+        for posicao, carro in enumerate(ordem, start=1):
+            self.imprimir( f"""{posicao}º {carro.modelo}
+Progresso:
+{barra(carro.distancia,self.distancia_total)}
+Combustível:
+{barra(carro.get_combustivel(), carro.get_combustivel_max())} Pneus: {carro.desgaste_medio():.0f}%""")
+            
 class Bomba_Combustivel(LogMixin):
     def __init__(self, combustivel_atual):
         self.combustivel_atual = combustivel_atual
@@ -192,22 +242,3 @@ class Bomba_Combustivel(LogMixin):
         carro.set_combustivel(carro.get_combustivel() + quantidade)
         self.combustivel_atual -= quantidade
     
-    #teste csv
-
-byd = Equipe("BYD")
-ferrari = Equipe("Ferrari")
-brainrot = Equipe("Brainrot")
-piloto1 = Piloto("Demetrios")
-piloto2 = Piloto("Info2M")
-piloto3 = Piloto("Six Seven")
-carro1 = Carro("SF-24", piloto1, 320, 100, 100)
-carro2 = Carro("W15", piloto2, 310, 100, 100)
-carro3 = Carro("Aura", piloto3, 310, 100, 100)
-byd.adicionar_participantes(carro1)
-ferrari.adicionar_participantes(carro2)
-brainrot.adicionar_participantes(carro3)
-pista = Pista("Interlagos", 3000)
-bomba = Bomba_Combustivel(1000)
-pitstop = Pitstop(bomba)
-corrida = Corrida([carro1, carro2, carro3], pista, pitstop)
-corrida.iniciar()
