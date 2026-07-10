@@ -5,6 +5,8 @@ import csv
 import os
 import time
 
+"""Cria uma barra de progresso que representa visualmente o progresso de cada carro, com distancia
+percorrida e combustível restante no carro."""
 def barra(valor, total, tamanho=20):
     porcentagem = valor / total
     if porcentagem > 1:
@@ -12,23 +14,30 @@ def barra(valor, total, tamanho=20):
     preenchido = int(tamanho * porcentagem)
     return "█" * preenchido + "░" * (tamanho - preenchido)
 
+"""Limpa o terminal, utilizado para limpar o terminal a cada nova volta percorrida. Facilitando a visualização
+a cda nova volta."""
 def limpar_tela():
     os.system("cls")
 
+"""Exibe o cabeçalho do simulador de corrida"""
 def cabecalho():
     print("=" * 45)
     print("SIMULADOR DE CORRIDA")
     print("=" * 45)
 
+"""Responsável por exibir mensagens no terminal."""
 class LogMixin:
     def imprimir(self, msg):
         print(msg)
 
+"""Representa a interface de um box, cria contrato para que as classes que herdem dele tenham o método realizar()"""
 class Box(abc.ABC):
     @abc.abstractmethod
     def realizar(self, carro):
         pass
 
+"""Classe abstrata com método abstrato acelerar, serve como base para os veículos que 
+quiserem participar da corrida, de modo que todos tenham que ter o método de acelerar()."""
 class Veiculo(abc.ABC):
     def __init__(self, modelo,piloto, velocidade_max, combustivel_max, combustivel_atual):
         self.modelo = modelo
@@ -53,6 +62,7 @@ class Veiculo(abc.ABC):
     def acelerar(self):
         pass
 
+"""Define um piloto participante da corrida, informando o nome e a quantidade de vitórias que ele possui."""
 class Piloto:
     def __init__(self, nome):
         self.nome = nome
@@ -64,6 +74,7 @@ class Piloto:
     def set_vitorias(self):
         self.__vitorias += 1
 
+"""Define um pneu de um veículo, controlando o desgaste e quando trocá-lo ao decorrer da corrida."""
 class Pneu:
     def __init__(self):
         self.desgaste = 0
@@ -76,6 +87,22 @@ class Pneu:
     def trocar(self):
         self.desgaste = 0
 
+"""É utilizada pelo pitstop para abastecer os veículos, todo o combustível adicionado
+nos carros é tirado do objeto bomba que está associado ao pitstop."""
+class Bomba_Combustivel(LogMixin):
+    def __init__(self, combustivel_atual):
+        self.combustivel_atual = combustivel_atual
+
+    def abastecer(self, quantidade, carro):
+        if quantidade > self.combustivel_atual:
+            self.imprimir("A bomba não possui combustível suficiente!")
+            return
+        
+        carro.set_combustivel(carro.get_combustivel() + quantidade)
+        self.combustivel_atual -= quantidade
+    
+
+"""Define tudo que um pitstop deve ter, realizando a troca de pneus e o abastecimento do carro, e utilizando o método da interface Box."""
 class Pitstop(LogMixin, Box):
     def __init__(self, bomba):
         self.bomba = bomba
@@ -94,6 +121,9 @@ class Pitstop(LogMixin, Box):
         
         self.imprimir(f"{carro.modelo} entrou no box ({tempo}s) | Combustível: {combustivel_antes}L --> {carro.get_combustivel()}L")
 
+
+"""Representa um carro que participará da corrida, usando os atributos base da classe Veiculo e 
+implementando o método acelerar()."""
 class Carro(Veiculo):
     def __init__(self, modelo, piloto, velocidade_max, combustivel_max, combustivel_atual):
         super().__init__(modelo,piloto, velocidade_max, combustivel_max, combustivel_atual)
@@ -129,12 +159,14 @@ class Carro(Veiculo):
         desgaste_pneus = any(pneu.desgaste >= 70 for pneu in self.pneus)
         pouco_combustivel = self.get_combustivel() <= 15
         return desgaste_pneus or pouco_combustivel
+    
     def desgaste_medio(self):
         total = 0
         for pneu in self.pneus:
             total += pneu.desgaste
         return total / 4
 
+"""Representa uma equipe formada pelos participantes da corrida."""
 class Equipe(LogMixin):
     def __init__(self, nome):
         self.nome = nome
@@ -148,6 +180,8 @@ class Equipe(LogMixin):
         self.__participantes.append(participante)
         participante.equipe = self.nome
 
+"""Representa a pista, os objetos dessa classe que definem quanto os carros vão ter que andar
+até chegarem ao final da corrida, o comprimento da pista que define a chegada dos veículos."""
 class Pista:
     def __init__(self, nome, comprimento):
         self.nome = nome
@@ -156,6 +190,8 @@ class Pista:
     def get_comprimento(self):
         return self.__comprimento
 
+"""Controla toda a simulação de corrida, ela que cria e salva as classificações de cada participante a cada corrida e que
+faz com que mostre o progresso de cada veículo a cada volta da corrida."""
 class Corrida(LogMixin):
     def __init__(self, participantes, pista, pitstop):
         self.participantes = participantes
@@ -207,7 +243,7 @@ class Corrida(LogMixin):
 
             self.mostrar_classificacao()
             time.sleep(6)
-            
+
         self.resultado[0].piloto.set_vitorias()
         self.imprimir("\nCorrida finalizada!")
         self.imprimir("\n VENCEDOR")
@@ -224,21 +260,8 @@ class Corrida(LogMixin):
                 self.participantes,key=lambda carro: carro.distancia,reverse=True)
         self.imprimir("\n--- CLASSIFICAÇÃO ---")
         for posicao, carro in enumerate(ordem, start=1):
-            self.imprimir( f"""{posicao}º {carro.modelo}
+            self.imprimir(f"""{posicao}º {carro.modelo}
 Progresso:
 {barra(carro.distancia,self.distancia_total)}
 Combustível:
 {barra(carro.get_combustivel(), carro.get_combustivel_max())} Pneus: {carro.desgaste_medio():.0f}%""")
-            
-class Bomba_Combustivel(LogMixin):
-    def __init__(self, combustivel_atual):
-        self.combustivel_atual = combustivel_atual
-
-    def abastecer(self, quantidade, carro):
-        if quantidade > self.combustivel_atual:
-            self.imprimir("A bomba não possui combustível suficiente!")
-            return
-        
-        carro.set_combustivel(carro.get_combustivel() + quantidade)
-        self.combustivel_atual -= quantidade
-    
