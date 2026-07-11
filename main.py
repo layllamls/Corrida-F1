@@ -1,12 +1,12 @@
 import corrida as c
+import carros as ca
+import pistas as p 
 
 """Cria os bots que se tornarão os adversários do jogador, para que a corrida possa acontecer."""
 class Bots:
     def definir_bots(self):
-        piloto_bot1 = c.Piloto("Carlos Sainz")
-        piloto_bot2 = c.Piloto("Lance Stroll")
-        carro_bot1 = c.Carro("Audi", piloto_bot1, 320, 100, 100)
-        carro_bot2 = c.Carro("Red Bull", piloto_bot2, 330, 110, 110)
+        carro_bot1 = ca.CarrosBots("Audi")
+        carro_bot2 = ca.CarrosBots("Red Bull")
         equipe_bot1 = c.Equipe("Audi")
         equipe_bot2 = c.Equipe("Red Bull")
         equipe_bot1.adicionar_participantes(carro_bot1)
@@ -17,39 +17,29 @@ class Bots:
 retornando a escolha do jogador e da pista."""
 class EscolhaJogador:
     def definir_jogador(self):
-        pilotos = [c.Piloto("Gabriel Bortoleto"), c.Piloto("Max Verstappen"), c.Piloto("Lewis Hamilton")]
-
-        carros = [["Ferrari", 320, 100, 100], ["Mercedes", 330, 120, 120], ["McLaren", 310, 110, 110]]
-
-        pistas = [c.Pista("Interlagos",3000), c.Pista("Mônaco",2500), c.Pista("Silverstone",4500)]
+        pistas = [p.Interlagos(), p.Monaco(), p.Silverstone()]
 
         equipes = [c.Equipe("Ferrari"), c.Equipe("Mercedes"), c.Equipe("McLaren")]
 
-        print("\nEscolha um piloto:\n")
-        for i, piloto in enumerate(pilotos, start=1):
-            print(f"{i} - {piloto.nome}")
-
-        op1 = int(input("Digite a opção: "))
-        piloto = pilotos[op1-1]
+        carros = [ca.Ferrari(), ca.Mercedes(), ca.McLaren()]
 
         print("\nEscolha um carro:\n")
-        for j, carro in enumerate(carros, start=1):
-            print(f"{j} - {carro[0]}")
-        op2 = int(input("Digite a opção: "))
-        modelo, velocidade, combustivel_max, combustivel_atual = carros[op2-1]
-        carro = c.Carro(modelo, piloto, velocidade, combustivel_max, combustivel_atual)
-
+        for g, carro in enumerate(carros, start=1):
+            print(f"{g} - {carro.modelo}")
+        op1 = int(input("Digite a opção: "))
+        carro = carros[op1-1]
+        
         print("\nEscolha uma pista:\n")
-        for p, pista in enumerate(pistas, start=1):
-            print(f"{p} - {pista.nome}")
-        op3 = int(input("Digite a opção: "))
-        pista = pistas[op3-1]
+        for j, pista in enumerate(pistas, start=1):
+            print(f"{j} - {pista.nome}")
+        op2 = int(input("Digite a opção: "))
+        pista = pistas[op2-1]
 
         print("\nEscolha uma equipe:\n")
         for e, equipe in enumerate(equipes, start=1):
             print(f"{e} - {equipe.nome}")
-        op4 = int(input("Digite a opção: "))
-        equipe = equipes[op4-1]
+        op3 = int(input("Digite a opção: "))
+        equipe = equipes[op3-1]
 
         equipe.adicionar_participantes(carro)
         return carro, pista
