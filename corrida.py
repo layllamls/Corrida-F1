@@ -50,7 +50,7 @@ class Pitstop(LogMixin, Box):
         self.imprimir(f"{carro.modelo} entrou no box ({tempo}s) | Combustível: {combustivel_antes}L --> {carro.get_combustivel()}L")
 
 
-"""Representa uma equipe formada pelos participantes da corrida."""
+"""Representa uma equipe formada pelos carros participantes da corrida."""
 class Equipe(LogMixin):
     def __init__(self, nome):
         self.nome = nome
@@ -64,7 +64,7 @@ class Equipe(LogMixin):
         self.__participantes.append(participante)
         participante.equipe = self.nome
 
-"""Controla toda a simulação de corrida, ela que cria e salva as classificações de cada participante a cada corrida e que
+"""Controla toda a simulação de corrida, essa classe que cria e salva as classificações de cada participante a cada corrida e que
 faz com que mostre o progresso de cada veículo a cada volta da corrida."""
 class Corrida(LogMixin):
     def __init__(self, participantes, pista, pitstop):

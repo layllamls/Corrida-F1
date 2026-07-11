@@ -13,7 +13,7 @@ class Bots:
         equipe_bot2.adicionar_participantes(carro_bot2)
         return [carro_bot1, carro_bot2]
 
-"""Permite que o usuário escolha o piloto, carro, pista e equipe que deseja jogar,
+"""Permite que o usuário escolha o carro, pista e equipe que deseja jogar,
 retornando a escolha do jogador e da pista."""
 class EscolhaJogador:
     def definir_jogador(self):

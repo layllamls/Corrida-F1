@@ -1,5 +1,4 @@
 import abc
-import corrida as c
 import random
 
 """Define um pneu de um veículo, controlando o desgaste e quando trocá-lo ao decorrer da corrida."""
@@ -15,8 +14,9 @@ class Pneu:
     def trocar(self):
         self.desgaste = 0
 
-"""Classe abstrata com método abstrato acelerar, serve como base para os veículos que 
-quiserem participar da corrida, de modo que todos tenham que ter o método de acelerar()."""
+"""Classe abstrata que representa um veículo participante da corrida.
+Define os atributos e comportamentos comuns a todos os carros, obrigando
+as subclasses a implementarem o método acelerar()."""
 class Veiculo(abc.ABC):
     def __init__(self, modelo, velocidade_max, combustivel_max, combustivel_atual):
         self.modelo = modelo
@@ -56,8 +56,8 @@ class Veiculo(abc.ABC):
     def acelerar(self):
         pass
 
-"""Representa um carro que participará da corrida, usando os atributos base da classe Veiculo e 
-implementando o método acelerar()."""
+"""Todas as classes que herdam de Veiculo contém suas próprias características particulares, de modo que cada uma se comportará de
+uma maneira diferente, mesmo tendo o mesmo método acelerar(). Pois algumas consomem mais combustível, outras desgastam mais os pneus, etc."""
 class Ferrari(Veiculo):
     def __init__(self):
         super().__init__("Ferrari", 340, 90, 90)
