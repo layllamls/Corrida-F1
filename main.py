@@ -24,19 +24,19 @@ class EscolhaJogador:
         carros = [ca.Ferrari(), ca.Mercedes(), ca.McLaren()]
 
         print("\nEscolha um carro:\n")
-        for g, carro in enumerate(carros, start=1):
+        for g, carro in enumerate(carros,1):
             print(f"{g} - {carro.modelo}")
         op1 = int(input("Digite a opção: "))
         carro = carros[op1-1]
         
         print("\nEscolha uma pista:\n")
-        for j, pista in enumerate(pistas, start=1):
+        for j, pista in enumerate(pistas, 1):
             print(f"{j} - {pista.nome}")
         op2 = int(input("Digite a opção: "))
         pista = pistas[op2-1]
 
         print("\nEscolha uma equipe:\n")
-        for e, equipe in enumerate(equipes, start=1):
+        for e, equipe in enumerate(equipes, 1):
             print(f"{e} - {equipe.nome}")
         op3 = int(input("Digite a opção: "))
         equipe = equipes[op3-1]
