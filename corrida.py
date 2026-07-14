@@ -42,13 +42,11 @@ class Pitstop(LogMixin, Box):
             pneu.trocar()
 
         carro.tempo_box += tempo
-
         combustivel_antes = carro.get_combustivel()
         quantidade = carro.get_combustivel_max() - carro.get_combustivel()
         self.bomba.abastecer(quantidade,carro)
         
-        self.imprimir(f"{carro.modelo} entrou no box ({tempo}s) | Combustível: {combustivel_antes}L --> {carro.get_combustivel()}L")
-
+        self.imprimir(f"{carro.modelo} entrou no box ({tempo}s) | Combustível: {combustivel_antes:.0f}L --> {carro.get_combustivel()}L")
 
 """Representa uma equipe formada pelos carros participantes da corrida."""
 class Equipe(LogMixin):
@@ -109,6 +107,7 @@ class Corrida(LogMixin):
             for carro in self.participantes:
                 if carro not in self.resultado:
                     self.pista.dificuldade(carro)
+                    
                     self.imprimir(carro.acelerar())
 
                     if carro.precisa_pitstop():
@@ -138,6 +137,6 @@ class Corrida(LogMixin):
         for posicao, carro in enumerate(ordem, start=1):
             self.imprimir(f"""{posicao}º {carro.modelo}
 Progresso:
-{self.interface.barra(carro.distancia,self.distancia_total)}
+{self.interface.pista(carro.distancia,self.distancia_total)}
 Combustível:
 {self.interface.barra(carro.get_combustivel(), carro.get_combustivel_max())} Pneus: {carro.desgaste_medio():.0f}%""")

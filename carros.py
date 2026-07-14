@@ -84,7 +84,7 @@ class Ferrari(Veiculo):
         for pneu in self.pneus:
             pneu.desgastar(desgaste)
 
-        return f"{self.modelo} acelerando a {velocidade} km/h (Distância: {self.distancia})"
+        return f"{self.modelo} acelerando a {velocidade} km/h (Distância: {self.distancia:.0f})"
     
 class Mercedes(Veiculo):
     def __init__(self):
@@ -112,7 +112,7 @@ class Mercedes(Veiculo):
         for pneu in self.pneus:
             pneu.desgastar(desgaste)
 
-        return f"{self.modelo} acelerando a {velocidade} km/h (Distância: {self.distancia})"
+        return f"{self.modelo} acelerando a {velocidade} km/h (Distância: {self.distancia:.0f})"
     
 
 class McLaren(Veiculo):
@@ -141,7 +141,7 @@ class McLaren(Veiculo):
         for pneu in self.pneus:
             pneu.desgastar(desgaste)
 
-        return f"{self.modelo} acelerando a {velocidade} km/h (Distância: {self.distancia})"
+        return f"{self.modelo} acelerando a {velocidade} km/h (Distância: {self.distancia:.0f})"
     
     
 class CarrosBots(Veiculo):
@@ -170,4 +170,4 @@ class CarrosBots(Veiculo):
         for pneu in self.pneus:
             pneu.desgastar(desgaste)
 
-        return f"{self.modelo} acelerando a {velocidade} km/h (Distância: {self.distancia})"
+        return f"{self.modelo} acelerando a {velocidade} km/h (Distância: {self.distancia:.0f})"
