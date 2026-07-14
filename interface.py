@@ -3,11 +3,11 @@ import os
 durante a execução da corrida."""
 class Interface:
     def pista(self, distancia, total, tamanho=60):
-        porcentagem = min(distancia/total, 1)
+        porcentagem = distancia/total
         if porcentagem > 1:
             porcentagem = 1
 
-        posicao = int((tamanho -1) * porcentagem)
+        posicao = int(tamanho * porcentagem)
         pista = ""
         for i in range(tamanho):
             if i == posicao:
