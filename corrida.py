@@ -107,7 +107,6 @@ class Corrida(LogMixin):
             for carro in self.participantes:
                 if carro not in self.resultado:
                     self.pista.dificuldade(carro)
-                    
                     self.imprimir(carro.acelerar())
 
                     if carro.precisa_pitstop():
@@ -118,7 +117,7 @@ class Corrida(LogMixin):
                         self.resultado.append(carro)
 
             self.mostrar_classificacao()
-            time.sleep(6)
+            time.sleep(1)
 
         self.imprimir("\nCorrida finalizada!")
         self.imprimir("\n VENCEDOR")
